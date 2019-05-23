@@ -33,4 +33,4 @@ Cada requisição deve sensibilizar um único arquivo de log.
 
 O conteúdo do arquivo de log deve ser semelhante a...
 
-[2019-05-23 10:08:23] [POST /url/sensibilizada/] [sucesso | erro] [parametros, se aplicado]
+    [2019-05-23 10:08:23] [POST /url/sensibilizada/] [sucesso | erro] [parametros, se aplicado]
