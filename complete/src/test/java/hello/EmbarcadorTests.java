@@ -15,11 +15,11 @@
  */
 package hello;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,24 +31,35 @@ import org.springframework.test.web.servlet.MockMvc;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class GreetingControllerTests {
+public class EmbarcadorTests {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
+    public void noParamEmbarcadoresShouldReturnGetMessage() throws Exception {
 
-        this.mockMvc.perform(get("/greeting")).andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, World!"));
+        this.mockMvc.perform(get("/embarcadores")).andDo(print())   .andExpect(status().isOk())
+                .andExpect(content().string(CoreMatchers.containsString("{read}")));
+    }
+    @Test
+    public void noParamEmbarcadoresShouldReturnPutMessage() throws Exception {
+
+        this.mockMvc.perform(put("/embarcadores")).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(CoreMatchers.containsString("{update}")));
+    }
+    @Test
+    public void noParamEmbarcadoresShouldReturnPostMessage() throws Exception {
+
+        this.mockMvc.perform(post("/embarcadores")).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(CoreMatchers.containsString("{create}")));
     }
 
     @Test
-    public void paramGreetingShouldReturnTailoredMessage() throws Exception {
+    public void noParamEmbarcadoresShouldReturnDeleteMessage() throws Exception {
 
-        this.mockMvc.perform(get("/greeting").param("name", "Spring Community"))
-                .andDo(print()).andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Hello, Spring Community!"));
+        this.mockMvc.perform(delete("/embarcadores")).andDo(print()).andExpect(status().isOk())
+                .andExpect(content().string(CoreMatchers.containsString("{delete}")));
     }
 
 }
