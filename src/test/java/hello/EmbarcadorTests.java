@@ -38,26 +38,37 @@ public class EmbarcadorTests {
 
     @Test
     public void noParamEmbarcadoresShouldReturnGetMessage() throws Exception {
-
-        this.mockMvc.perform(get("/embarcadores")).andDo(print())   .andExpect(status().isOk())
-                .andExpect(content().string(CoreMatchers.containsString("{read}")));
+        this.mockMvc.perform(
+            get("/embarcadores")).andDo(print()).andExpect(
+                status().isOk()).andExpect(
+                    content().string(
+                        CoreMatchers.containsString("{read}")
+            )
+        );
     }
     @Test
     public void noParamEmbarcadoresShouldReturnPutMessage() throws Exception {
-
-        this.mockMvc.perform(put("/embarcadores")).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().string(CoreMatchers.containsString("{update}")));
+        this.mockMvc.perform(put("/embarcadores"))
+            .andDo(print())
+            .andExpect(status()
+            .isOk())
+            .andExpect(content()
+            .string(CoreMatchers.containsString("{update}")));
     }
     @Test
     public void noParamEmbarcadoresShouldReturnPostMessage() throws Exception {
-
-        this.mockMvc.perform(post("/embarcadores")).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().string(CoreMatchers.containsString("{create}")));
+        this.mockMvc.perform(post("/embarcadores"))
+            .andDo(print())
+            .andExpect(status()
+                    .isOk())
+                    .andExpect(content()
+                        .string(CoreMatchers.containsString("{create}")
+            )
+        );
     }
 
     @Test
     public void noParamEmbarcadoresShouldReturnDeleteMessage() throws Exception {
-
         this.mockMvc.perform(delete("/embarcadores")).andDo(print()).andExpect(status().isOk())
                 .andExpect(content().string(CoreMatchers.containsString("{delete}")));
     }
