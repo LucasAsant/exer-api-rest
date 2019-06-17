@@ -8,6 +8,9 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
+import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.mongodb.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -83,19 +86,12 @@ public class Embarcador {
 
         Table table = dynamoDb.getTable(tableName);
 
-        Map<String, String> expressionAttributeNames = new HashMap<String, String>();
-        expressionAttributeNames.put("#A", "Authors");
-        expressionAttributeNames.put("#P", "Price");
-        expressionAttributeNames.put("#I", "ISBN");
-
-        Map<String, Object> expressionAttributeValues = new HashMap<String, Object>();
-        expressionAttributeValues.put(":novoNome", "UpdateNome");
-        expressionAttributeValues.put(":novaPlaca", "ABC0000");   //Price
-
-        table.updateItem("id", idEmbarc,
-                "add #A :novoNome set #P = #P - :novaPlaca remove #I", // UpdateExpression
-                expressionAttributeNames,
-                expressionAttributeValues);
+        UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey("id", idEmbarc, "placa", placa) //puxa os campos e valores que deseja atualizar
+            .withUpdateExpression("set nome =:n") //cria apelido para campos do array de informações
+            .withValueMap(new ValueMap().withString(":n", "Novo nome" )
+            )// adiciona valores atualizados
+            .withReturnValues(ReturnValue.UPDATED_NEW);
+        UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
         logger("update"); //Logging operation;
         return "{update}";
     }
@@ -104,7 +100,7 @@ public class Embarcador {
     public String delete() {
         initDynamoDbClient();
 
-        dynamoDb.getTable(tableName).deleteItem("id", idEmbarc);
+        dynamoDb.getTable(tableName).deleteItem("id", idEmbarc, "placa", placa);
         logger("delete");   //Logging operation;
         return "{delete}";
     }
