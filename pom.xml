@@ -14,6 +14,12 @@
     </parent>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-dynamodb</artifactId>
+            <version>1.11.568</version>
+        </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -52,6 +58,11 @@
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
             <version>3.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-dynamodb</artifactId>
+            <version>1.11.568</version>
         </dependency>
     </dependencies>
 

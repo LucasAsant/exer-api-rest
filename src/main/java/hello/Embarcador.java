@@ -1,5 +1,13 @@
 package hello;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.spec.PutItemSpec;
 import com.mongodb.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -9,50 +17,61 @@ import org.bson.types.ObjectId;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.*;
 
 @RestController
 @RequestMapping(value = "embarcadores")
 public class Embarcador {
 
-    private String databaseName = "Examples";                                   //Choosing Database
-    private MongoClient mongoClient = new MongoClient();                        //Creating connection to the Database
-    private MongoDatabase database = mongoClient.getDatabase(databaseName);     //Connecting to the Database
+    private DynamoDB dynamoDb;
+    private String tableName = "Embarcadores";
+    private String idEmbarc = "0001";
+    private String nome = "ExemploNome";
+    private String placa = "ABC1234";
 
-    private MongoCollection<Document> collectionName = database.getCollection("embarcadores");    //Choosing the collection
-    private List<String> placasEmbarcador = Arrays.asList("ABC1234", "ABC1235");                     //Example array
+    // Método de inicialização do cliente
+    private void initDynamoDbClient() {
+        AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
+            .withEndpointConfiguration(
+                new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "us-west-2"))
+            .withCredentials(
+                new AWSStaticCredentialsProvider(
+                    new BasicAWSCredentials(
+                        "AKIA4QQ35UGTKGYNXIXQ",
+                        "VYIej9bC9G8nzrDIEuA9P15tTqlriwJx5Zb6t/pK"
+                    )
+                )
+            )
+            .build();
+        this.dynamoDb = new DynamoDB(client);
+    }
 
-    @GetMapping()   //Get Request reading a collection
+    @GetMapping()   //Get Request reading item from table
     public String read() {
+        initDynamoDbClient();
 
-        FindIterable<Document> findIterable = collectionName.find();    //Selecting the collection
-        Iterator<Document> iterator = findIterable.iterator();          //Creating variable iterator to run through all the lines selected
+        String resultado = dynamoDb.getTable(tableName)
+                .getItem("id", idEmbarc, "nome", nome).toJSONPretty();
 
-        iterator.forEachRemaining(System.out::println);                 //Printing all lines selected
-
+        System.out.println(resultado);
         logger("read"); //Logging operation;
         return "{read}";
     }
 
-    @PostMapping() //Post Request creating a new document in the collection
+    @PostMapping() //Post Request creating a new item in the table
     public String create() {
+        initDynamoDbClient();
 
-        Document document = new Document();     //Creating the document
-        ObjectId id = new ObjectId();           //Creating a new random Id;
+        String randomId = UUID.randomUUID().toString();
 
-        /*  Imputing data in the document  */
-        document.put("_id", id.toString());
-        document.put("name", "Nome Original");
-        document.append("address", new Document("street", "123 Fake St"));
-        document.put("city", "Faketon");
-        document.put("state", "MA");
-        document.put("zip", 12345);
-        document.put("cars", placasEmbarcador);
-
-        collectionName.insertOne(document);     //Inserting the document in the collection
+        dynamoDb.getTable(tableName).putItem(
+            new PutItemSpec().withItem(
+                new Item().withString("id", idEmbarc)
+                          .withString("placa", placa)
+                          .withString("nome", nome)
+            )
+        );
 
         logger("create"); //Logging operation;
         return "{create}";
@@ -60,23 +79,32 @@ public class Embarcador {
 
     @PutMapping() //Put Request updating a document in the collection
     public String update() {
+        initDynamoDbClient();
 
-        Document updateFields = new Document();         //Creating the update document
-        updateFields.append("name", "Nome Alterado");   //Setting new values in the update document
+        Table table = dynamoDb.getTable(tableName);
 
-        Document setQuery = new Document("$set", updateFields);     //Creating document to set the new values
-        Document searchQuery = new Document("name", "Nome Original");   //Creating document to search the field to be altered
+        Map<String, String> expressionAttributeNames = new HashMap<String, String>();
+        expressionAttributeNames.put("#A", "Authors");
+        expressionAttributeNames.put("#P", "Price");
+        expressionAttributeNames.put("#I", "ISBN");
 
-        collectionName.updateMany(searchQuery,setQuery); //Updating the document searched with the new values
+        Map<String, Object> expressionAttributeValues = new HashMap<String, Object>();
+        expressionAttributeValues.put(":novoNome", "UpdateNome");
+        expressionAttributeValues.put(":novaPlaca", "ABC0000");   //Price
 
+        table.updateItem("id", idEmbarc,
+                "add #A :novoNome set #P = #P - :novaPlaca remove #I", // UpdateExpression
+                expressionAttributeNames,
+                expressionAttributeValues);
         logger("update"); //Logging operation;
         return "{update}";
     }
 
     @DeleteMapping() //Delete Request deleting a collection
     public String delete() {
+        initDynamoDbClient();
 
-        collectionName.drop();      //Deleting the collection embarcadores
+        dynamoDb.getTable(tableName).deleteItem("id", idEmbarc);
         logger("delete");   //Logging operation;
         return "{delete}";
     }
