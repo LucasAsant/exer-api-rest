@@ -20,8 +20,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.hamcrest.CoreMatchers;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.runner.RunWith;
+import org.junit.jupiter.api.TestMethodOrder;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,48 +35,67 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 @RunWith(SpringRunner.class)
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class EmbarcadorTests {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    public void noParamEmbarcadoresShouldReturnGetMessage() throws Exception {
-        this.mockMvc.perform(
-            get("/embarcadores")).andDo(print()).andExpect(
-                status().isOk()).andExpect(
-                    content().string(
-                        CoreMatchers.containsString("{read}")
-            )
-        );
+    @Before
+    public void testTable(){
+        Embarcador embarcador = new Embarcador();
+        embarcador.tableExists();
     }
+
     @Test
-    public void noParamEmbarcadoresShouldReturnPutMessage() throws Exception {
-        this.mockMvc.perform(put("/embarcadores"))
-            .andDo(print())
-            .andExpect(status()
-            .isOk())
-            .andExpect(content()
-            .string(CoreMatchers.containsString("{update}")));
-    }
-    @Test
+    @Order(1)
     public void noParamEmbarcadoresShouldReturnPostMessage() throws Exception {
         this.mockMvc.perform(post("/embarcadores"))
             .andDo(print())
             .andExpect(status()
-                    .isOk())
-                    .andExpect(content()
-                        .string(CoreMatchers.containsString("{create}")
-            )
-        );
+                .isOk())
+            .andExpect(content()
+                .string(CoreMatchers.containsString("{create}")
+                )
+            );
     }
 
     @Test
+    @Order(2)
+    public void noParamEmbarcadoresShouldReturnGetMessage() throws Exception {
+        this.mockMvc.perform(get("/embarcadores"))
+            .andDo(print()).andExpect(
+            status()
+                .isOk())
+            .andExpect(content()
+                .string(CoreMatchers.containsString("{read}")
+                )
+            );
+    }
+
+    @Test
+    @Order(3)
+    public void noParamEmbarcadoresShouldReturnPutMessage() throws Exception {
+        this.mockMvc.perform(put("/embarcadores"))
+            .andDo(print())
+            .andExpect(status()
+                .isOk())
+            .andExpect(content()
+                .string(CoreMatchers.containsString("{update}")));
+    }
+
+    @Test
+    @Order(4)
     public void noParamEmbarcadoresShouldReturnDeleteMessage() throws Exception {
-        this.mockMvc.perform(delete("/embarcadores")).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().string(CoreMatchers.containsString("{delete}")));
+        this.mockMvc.perform(delete("/embarcadores"))
+            .andDo(print())
+            .andExpect(status()
+                .isOk())
+            .andExpect(content()
+                .string(CoreMatchers.containsString("{delete}")));
     }
 
 }
