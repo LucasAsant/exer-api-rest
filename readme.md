@@ -24,3 +24,13 @@ __Validação__
 
 Rodar os teste com sucesso
 
+
+## Parte 3
+
+Iniciar a escrita de arquivo de log´s.
+
+Cada requisição deve sensibilizar um único arquivo de log.
+
+O conteúdo do arquivo de log deve ser semelhante a...
+
+    [2019-05-23 10:08:23] [POST /url/sensibilizada/] [sucesso | erro] [parametros, se aplicado]
